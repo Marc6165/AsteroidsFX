@@ -7,13 +7,17 @@ import dk.sdu.mmmi.cbse.common.data.World;
 import dk.sdu.mmmi.cbse.common.services.IEntityProcessingService;
 import dk.sdu.mmmi.cbse.common.services.IGamePluginService;
 import dk.sdu.mmmi.cbse.common.services.IPostEntityProcessingService;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.ServiceLoader;
+
+import java.io.IOException;
+import java.lang.module.Configuration;
+import java.lang.module.ModuleFinder;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
+
 import static java.util.stream.Collectors.toList;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
@@ -26,12 +30,20 @@ import javafx.stage.Stage;
 
 public class Main extends Application {
 
+    private static ModuleLayer moduleLayer;
+
     private final GameData gameData = new GameData();
     private final World world = new World();
     private final Map<Entity, Polygon> polygons = new ConcurrentHashMap<>();
     private final Pane gameWindow = new Pane();
 
     public static void main(String[] args) {
+        try {
+            loadPlugins();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
+        }
         launch(Main.class);
     }
 
@@ -149,15 +161,33 @@ public class Main extends Application {
 
     }
 
+    private static void loadPlugins() throws  IOException {
+        Path pluginsDir = Paths.get("plugins");
+        System.out.println("Loading plugins from: " + pluginsDir.toAbsolutePath());
+        if (!Files.exists(pluginsDir)) {
+            Files.createDirectory(pluginsDir);
+        }
+
+        ModuleFinder finder = ModuleFinder.of(pluginsDir);
+        Set<String> moduleNames = finder.findAll().stream()
+                .map(ref -> ref.descriptor().name())
+                .collect(Collectors.toSet());
+
+        ModuleLayer parent = ModuleLayer.boot();
+        Configuration config = parent.configuration().resolve(finder, ModuleFinder.of(), moduleNames);
+
+        moduleLayer = parent.defineModulesWithOneLoader(config, ClassLoader.getSystemClassLoader());
+    }
+
     private Collection<? extends IGamePluginService> getPluginServices() {
-        return ServiceLoader.load(IGamePluginService.class).stream().map(ServiceLoader.Provider::get).collect(toList());
+        return ServiceLoader.load(moduleLayer, IGamePluginService.class).stream().map(ServiceLoader.Provider::get).collect(toList());
     }
 
     private Collection<? extends IEntityProcessingService> getEntityProcessingServices() {
-        return ServiceLoader.load(IEntityProcessingService.class).stream().map(ServiceLoader.Provider::get).collect(toList());
+        return ServiceLoader.load(moduleLayer, IEntityProcessingService.class).stream().map(ServiceLoader.Provider::get).collect(toList());
     }
 
     private Collection<? extends IPostEntityProcessingService> getPostEntityProcessingServices() {
-        return ServiceLoader.load(IPostEntityProcessingService.class).stream().map(ServiceLoader.Provider::get).collect(toList());
+        return ServiceLoader.load(moduleLayer, IPostEntityProcessingService.class).stream().map(ServiceLoader.Provider::get).collect(toList());
     }
 }

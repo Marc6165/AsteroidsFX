@@ -12,6 +12,7 @@ public class EnemyPlugin implements IGamePluginService {
     }
     @Override
     public void start(GameData gameData, World world) {
+        System.out.println("EnemyPlugin in Enemy-component started");
         int initialEnemies = 2;
         for (int i = 0; i < initialEnemies; i++) {
             Entity enemy = EnemyFactory.createEnemyShip(gameData);
