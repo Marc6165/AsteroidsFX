@@ -20,6 +20,7 @@
         <module>CommonAsteroids</module>
         <module>Asteroids</module>
         <module>Collision</module>
+        <module>Scoresystem</module>
     </modules>
     <properties>
         <java>java</java>
