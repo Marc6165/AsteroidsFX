@@ -22,20 +22,10 @@ public class ScoreSystem {
         return scoreCounter;
     }
 
-    @PutMapping("/score/increment")
-    public void incrementScore() {
-        scoreCounter++;
-    }
-
     @PutMapping("/score/add/{value}")
     public void addScore(@PathVariable long value) {
         if(value > 0) {
             scoreCounter += value;
         }
-    }
-
-    @PutMapping("/score/reset")
-    public void resetScore() {
-        scoreCounter = 0;
     }
 }

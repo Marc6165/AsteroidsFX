@@ -183,13 +183,6 @@ public class GameLoop extends AnimationTimer {
                 .join();
     }
 
-    private void incrementScore() {
-        requestClient.sendAsync(java.net.http.HttpRequest.newBuilder()
-                        .uri(scoreEndpointUrl.resolve("score/increment"))
-                        .PUT(java.net.http.HttpRequest.BodyPublishers.noBody())
-                        .build(), java.net.http.HttpResponse.BodyHandlers.discarding())
-                .join();
-    }
 
     private void addScoreBy(long value) {
         requestClient.sendAsync(java.net.http.HttpRequest.newBuilder()
