@@ -38,8 +38,6 @@ public class EnemyControlSystem implements IEntityProcessingService {
 
     private void manageEnemySpawning(GameData gameData, World world) {
         int currentTime = gameData.getGameTime();
-        System.out.println("Time since last spawn: " + (currentTime - lastSpawnTime) + " s");
-        System.out.println("Current enemy count: " + world.getEntities(Enemy.class).size());
         if (currentTime - lastSpawnTime >= SPAWN_INTERVAL && world.getEntities(Enemy.class).size() < MAX_ENEMIES) {
             Entity enemy = EnemyFactory.createEnemyShip(gameData);
             lastSpawnTime = currentTime;
