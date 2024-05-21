@@ -44,7 +44,7 @@ public class BulletControlSystem implements IEntityProcessingService, BulletSPI 
 
     @Override
     public Entity createBullet(Entity shooter, GameData gameData) {
-        Entity bullet = new Bullet(10);
+        Entity bullet = new Bullet(1);
         bullet.setPolygonCoordinates(1, -1, 1, 1, -1, 1, -1, -1);
 
         double shooterX = shooter.getX();
